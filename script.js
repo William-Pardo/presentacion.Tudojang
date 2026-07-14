@@ -143,12 +143,14 @@
       maximizedPanel = panel;
       panel.classList.add("is-maximized");
       restoreFab?.classList.add("is-visible");
+      document.body.classList.add("has-maximized");
     }
 
     function restore() {
       maximizedPanel?.classList.remove("is-maximized");
       maximizedPanel = null;
       restoreFab?.classList.remove("is-visible");
+      document.body.classList.remove("has-maximized");
     }
 
     document.querySelectorAll(".expand-embed").forEach((button) => {

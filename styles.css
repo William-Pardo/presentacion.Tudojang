@@ -216,12 +216,13 @@ a { color: inherit; text-decoration: none; }
   transition: padding 0.3s ease;
 }
 
-/* Estado maximizado: el iframe pasa a pantalla completa real (ambas direcciones),
-   tapando riel, barra de progreso y todo lo demás. El panel-content se oculta entero. */
+/* Estado maximizado: el panel activo YA ocupa toda la pantalla (asi funciona el
+   motor de scroll horizontal) — solo hace falta que la columna de texto se achique
+   a 0 para que el iframe tome el 100% del ancho y alto ya disponibles. Nada de
+   position:fixed acá: el track tiene transform, y eso lo convierte en el
+   "contenedor" de cualquier hijo fixed, corriendolo fuera de pantalla. */
+.split-panel.is-maximized { grid-template-columns: 0px 1fr; }
 .split-panel.is-maximized .panel-content { display: none; }
-.split-panel.is-maximized .panel-media {
-  position: fixed; inset: 0; z-index: 500; width: 100vw; height: 100vh;
-}
 
 .expand-embed {
   pointer-events: auto; cursor: pointer; flex-shrink: 0;
@@ -230,6 +231,10 @@ a { color: inherit; text-decoration: none; }
   border-radius: 999px; padding: 4px 10px; font-weight: 700;
 }
 .expand-embed:hover { background: rgba(255,255,255,0.24); }
+
+/* Con algun panel maximizado, se ocultan la barra inferior y la de progreso */
+body.has-maximized .site-header,
+body.has-maximized .horizontal-progress { display: none; }
 
 /* Boton flotante unico para restaurar, siempre en el mismo lugar, alta visibilidad */
 .restore-fab {
