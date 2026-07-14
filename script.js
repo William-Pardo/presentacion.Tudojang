@@ -134,28 +134,32 @@
     navLinks.forEach((link) => link.addEventListener("click", (e) => { e.preventDefault(); scrollToPanel(Number(link.dataset.panelLink)); }));
   }
 
-  function setupReloadButtons() {
-    document.querySelectorAll(".reload-embed").forEach((button) => {
-      button.addEventListener("click", () => {
-        const iframe = button.closest(".app-embed")?.querySelector("iframe");
-        if (!iframe) return;
-        // eslint-disable-next-line no-self-assign
-        iframe.src = iframe.src;
-      });
-    });
-  }
-
   function setupExpandToggle() {
+    const restoreFab = document.querySelector(".restore-fab");
+    let maximizedPanel = null;
+
+    function maximize(panel) {
+      maximizedPanel?.classList.remove("is-maximized");
+      maximizedPanel = panel;
+      panel.classList.add("is-maximized");
+      restoreFab?.classList.add("is-visible");
+    }
+
+    function restore() {
+      maximizedPanel?.classList.remove("is-maximized");
+      maximizedPanel = null;
+      restoreFab?.classList.remove("is-visible");
+    }
+
     document.querySelectorAll(".expand-embed").forEach((button) => {
       button.addEventListener("click", () => {
-        button.closest(".split-panel")?.classList.add("is-maximized");
+        const panel = button.closest(".split-panel");
+        if (panel) maximize(panel);
       });
     });
-    document.querySelectorAll(".restore-pill").forEach((button) => {
-      button.addEventListener("click", () => {
-        button.closest(".split-panel")?.classList.remove("is-maximized");
-      });
-    });
+
+    restoreFab?.addEventListener("click", restore);
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape") restore(); });
   }
 
   function respectReducedMotionVideos() {
@@ -171,7 +175,6 @@
     setImageFallbacks();
     respectReducedMotionVideos();
     setupNav();
-    setupReloadButtons();
     setupExpandToggle();
     window.addEventListener("resize", setupHorizontalScroll);
     window.addEventListener("orientationchange", setupHorizontalScroll);
