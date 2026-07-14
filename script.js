@@ -145,6 +145,19 @@
     });
   }
 
+  function setupExpandToggle() {
+    document.querySelectorAll(".expand-embed").forEach((button) => {
+      button.addEventListener("click", () => {
+        button.closest(".split-panel")?.classList.add("is-maximized");
+      });
+    });
+    document.querySelectorAll(".restore-pill").forEach((button) => {
+      button.addEventListener("click", () => {
+        button.closest(".split-panel")?.classList.remove("is-maximized");
+      });
+    });
+  }
+
   function respectReducedMotionVideos() {
     if (!reducedMotion) return;
     document.querySelectorAll(".panel-media video").forEach((video) => {
@@ -159,6 +172,7 @@
     respectReducedMotionVideos();
     setupNav();
     setupReloadButtons();
+    setupExpandToggle();
     window.addEventListener("resize", setupHorizontalScroll);
     window.addEventListener("orientationchange", setupHorizontalScroll);
     window.addEventListener("scroll", updateHorizontalScroll, { passive: true });
