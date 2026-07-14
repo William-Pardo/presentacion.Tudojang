@@ -134,6 +134,17 @@
     navLinks.forEach((link) => link.addEventListener("click", (e) => { e.preventDefault(); scrollToPanel(Number(link.dataset.panelLink)); }));
   }
 
+  function setupReloadButtons() {
+    document.querySelectorAll(".reload-embed").forEach((button) => {
+      button.addEventListener("click", () => {
+        const iframe = button.closest(".app-embed")?.querySelector("iframe");
+        if (!iframe) return;
+        // eslint-disable-next-line no-self-assign
+        iframe.src = iframe.src;
+      });
+    });
+  }
+
   function respectReducedMotionVideos() {
     if (!reducedMotion) return;
     document.querySelectorAll(".panel-media video").forEach((video) => {
@@ -147,6 +158,7 @@
     setImageFallbacks();
     respectReducedMotionVideos();
     setupNav();
+    setupReloadButtons();
     window.addEventListener("resize", setupHorizontalScroll);
     window.addEventListener("orientationchange", setupHorizontalScroll);
     window.addEventListener("scroll", updateHorizontalScroll, { passive: true });
