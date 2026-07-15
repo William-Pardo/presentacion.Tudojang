@@ -198,31 +198,28 @@ a { color: inherit; text-decoration: none; }
 .stat-card strong { display: block; margin-top: 10px; font-size: clamp(1.1rem, 2vw, 1.5rem); letter-spacing: -0.01em; }
 .stat-card span.desc { margin-top: 8px; color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
 
-/* SPLIT PANEL (demos)
-   Rediseñado tras confirmar con DevTools que la técnica de "achicar la columna
-   del grid a 0px" dejaba a .panel-media colapsado a tamaño cero (el iframe
-   nunca llegaba a ocupar el espacio). Técnica nueva, mucho más robusta:
-   .panel-media SIEMPRE cubre el 100% del panel entero via position:absolute +
-   inset:0 (la misma técnica ya comprobada que usan las fotos/videos de los
-   paneles full-bleed) — el grid ya no controla su tamaño en absoluto.
-   .panel-content queda encima (position:relative + z-index), con fondo opaco,
-   tapando la mitad izquierda. "Maximizar" pasa a ser solo ocultar ese texto:
-   la app de abajo ya estaba ahí, a tamaño completo, todo el tiempo. */
+/* SPLIT PANEL (demos) — layout original restaurado (el que funcionaba: scroll
+   correcto porque el iframe solo ocupa la columna derecha, no el panel entero). */
 .split-panel { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr); }
-.split-panel .panel-media { position: absolute; inset: 0; }
+.split-panel .panel-media { position: relative; inset: auto; grid-column: 2; }
 .split-panel .panel-content {
-  position: relative; z-index: 2;
-  grid-column: 1; width: 100%; max-width: none; overflow: hidden;
+  grid-column: 1; width: 100%; max-width: none;
   background:
     radial-gradient(circle at 0% 0%, rgba(227,34,44,0.15), transparent 38%),
     linear-gradient(180deg, rgba(13,16,23,0.98), rgba(5,6,9,0.98));
   border-right: 1px solid rgba(255,255,255,0.08);
-  transition: opacity 0.4s ease;
+}
+@media (max-width: 900px) {
+  .split-panel { grid-template-columns: 1fr; }
+  .split-panel .panel-media { position: absolute; inset: 0; grid-column: 1; opacity: 0.28; }
+  .split-panel .panel-content { grid-column: 1; grid-row: 1; background: rgba(5,6,9,0.55); border-right: none; }
 }
 
-/* Estado maximizado: solo se oculta el texto, la app ya ocupaba todo el panel */
-.split-panel.is-maximized .panel-content { opacity: 0; pointer-events: none; }
-
+/* "Ampliar" ahora usa la API nativa de Fullscreen del navegador en vez de CSS:
+   el navegador se encarga de mostrar SOLO .panel-media cubriendo toda la
+   pantalla, sin tocar el grid, sin containing-block raros, sin que el scroll
+   principal se vea afectado en el estado normal (el iframe nunca ocupa mas
+   que su columna hasta que se activa fullscreen). */
 .expand-embed {
   pointer-events: auto; cursor: pointer; flex-shrink: 0;
   font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em;
@@ -230,33 +227,8 @@ a { color: inherit; text-decoration: none; }
   border-radius: 999px; padding: 4px 10px; font-weight: 700;
 }
 .expand-embed:hover { background: rgba(255,255,255,0.24); }
-
-/* Con algun panel maximizado, se ocultan la barra inferior y la de progreso */
-body.has-maximized .site-header,
-body.has-maximized .horizontal-progress { display: none; }
-
-/* Boton flotante unico para restaurar, siempre en el mismo lugar, alta visibilidad */
-.restore-fab {
-  display: flex; position: fixed; top: 76px; right: 20px; z-index: 600;
-  align-items: center; justify-content: center; cursor: pointer;
-  width: 44px; height: 44px; border-radius: 50%; border: none; padding: 0;
-  background: var(--red); color: var(--white); font-weight: 800;
-  box-shadow: 0 10px 30px -8px rgba(0,0,0,0.6);
-  opacity: 0; transform: scale(0.5); pointer-events: none;
-  /* ANIMACION DESACTIVADA TEMPORALMENTE para aislar el bug del fullscreen negro */
-}
-.restore-fab.is-visible { opacity: 1; transform: scale(1); pointer-events: auto; }
-.restore-fab:hover { background: #c41d26; }
-.restore-fab .icon { font-size: 1.2rem; line-height: 1; }
-.restore-fab .label {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-}
-@media (max-width: 900px) {
-  .split-panel { grid-template-columns: 1fr; }
-  .split-panel .panel-media { position: absolute; inset: 0; grid-column: 1; opacity: 0.28; }
-  .split-panel .panel-content { grid-column: 1; grid-row: 1; background: rgba(5,6,9,0.55); border-right: none; }
-}
+.panel-media.app-embed:fullscreen { background: #fff; }
+.panel-media.app-embed:fullscreen .app-embed-caption { pointer-events: auto; }
 
 .demo-badge {
   display: inline-block; font-family: var(--font-mono); font-size: 0.68rem;

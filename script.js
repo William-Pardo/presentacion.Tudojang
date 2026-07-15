@@ -135,44 +135,29 @@
   }
 
   function setupExpandToggle() {
-    const restoreFab = document.querySelector(".restore-fab");
-    let maximizedPanel = null;
-
-    function resync() {
-      // El motor de scroll horizontal depende 100% de window.scrollY. Si el
-      // click/foco del boton dispara un auto-scroll nativo del navegador (para
-      // llevar el elemento enfocado a la vista), la posicion se desincroniza y
-      // el panel visible "salta". Sacamos el foco y forzamos un recalculo.
-      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-      requestAnimationFrame(updateHorizontalScroll);
-    }
-
-    function maximize(panel) {
-      maximizedPanel?.classList.remove("is-maximized");
-      maximizedPanel = panel;
-      panel.classList.add("is-maximized");
-      restoreFab?.classList.add("is-visible");
-      document.body.classList.add("has-maximized");
-      resync();
-    }
-
-    function restore() {
-      maximizedPanel?.classList.remove("is-maximized");
-      maximizedPanel = null;
-      restoreFab?.classList.remove("is-visible");
-      document.body.classList.remove("has-maximized");
-      resync();
-    }
-
+    // Usa la Fullscreen API nativa del navegador en vez de CSS: el layout
+    // normal (grid, scroll) nunca se toca, asi que nunca se rompe. El
+    // navegador se encarga de mostrar SOLO .panel-media a pantalla completa.
     document.querySelectorAll(".expand-embed").forEach((button) => {
+      const media = button.closest(".app-embed");
+      if (!media) return;
+
       button.addEventListener("click", () => {
-        const panel = button.closest(".split-panel");
-        if (panel) maximize(panel);
+        if (document.fullscreenElement === media) {
+          document.exitFullscreen();
+        } else if (media.requestFullscreen) {
+          media.requestFullscreen();
+        }
       });
     });
 
-    restoreFab?.addEventListener("click", restore);
-    window.addEventListener("keydown", (e) => { if (e.key === "Escape") restore(); });
+    document.addEventListener("fullscreenchange", () => {
+      document.querySelectorAll(".expand-embed").forEach((button) => {
+        const media = button.closest(".app-embed");
+        const isFullscreen = document.fullscreenElement === media;
+        button.textContent = isFullscreen ? "⛶ Restaurar" : "⛶ Ampliar";
+      });
+    });
   }
 
   function respectReducedMotionVideos() {
