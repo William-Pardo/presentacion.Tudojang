@@ -198,41 +198,29 @@ a { color: inherit; text-decoration: none; }
 .stat-card strong { display: block; margin-top: 10px; font-size: clamp(1.1rem, 2vw, 1.5rem); letter-spacing: -0.01em; }
 .stat-card span.desc { margin-top: 8px; color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
 
-/* SPLIT PANEL (demos) */
-.split-panel {
-  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
-  /* sin esto, la unica fila implicita se ajusta al contenido (auto) en vez de
-     llenar los 100vh del panel -- por eso el contenedor de la app colapsaba */
-  grid-template-rows: minmax(0, 1fr);
-  /* ANIMACION DESACTIVADA TEMPORALMENTE para aislar el bug del fullscreen negro */
-}
-.split-panel .panel-media {
-  position: relative; inset: auto; grid-column: 2;
-  height: 100%; min-height: 0;
-}
-/* NOTA: se probo un transform:scaleY() acá para reforzar la sensacion de
-   "crece en ambos sentidos", pero aplicar transform a un contenedor que tiene
-   un iframe adentro rompe su render en Chrome (queda en negro) -- se saco. El
-   efecto de rebote queda solo en el ancho (grid-template-columns), que no
-   tiene ese problema. */
+/* SPLIT PANEL (demos)
+   Rediseñado tras confirmar con DevTools que la técnica de "achicar la columna
+   del grid a 0px" dejaba a .panel-media colapsado a tamaño cero (el iframe
+   nunca llegaba a ocupar el espacio). Técnica nueva, mucho más robusta:
+   .panel-media SIEMPRE cubre el 100% del panel entero via position:absolute +
+   inset:0 (la misma técnica ya comprobada que usan las fotos/videos de los
+   paneles full-bleed) — el grid ya no controla su tamaño en absoluto.
+   .panel-content queda encima (position:relative + z-index), con fondo opaco,
+   tapando la mitad izquierda. "Maximizar" pasa a ser solo ocultar ese texto:
+   la app de abajo ya estaba ahí, a tamaño completo, todo el tiempo. */
+.split-panel { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr); }
+.split-panel .panel-media { position: absolute; inset: 0; }
 .split-panel .panel-content {
+  position: relative; z-index: 2;
   grid-column: 1; width: 100%; max-width: none; overflow: hidden;
   background:
     radial-gradient(circle at 0% 0%, rgba(227,34,44,0.15), transparent 38%),
     linear-gradient(180deg, rgba(13,16,23,0.98), rgba(5,6,9,0.98));
   border-right: 1px solid rgba(255,255,255,0.08);
-  /* ANIMACION DESACTIVADA TEMPORALMENTE para aislar el bug del fullscreen negro */
+  transition: opacity 0.4s ease;
 }
 
-/* Estado maximizado: el panel activo YA ocupa toda la pantalla (asi funciona el
-   motor de scroll horizontal) — solo hace falta que la columna de texto se achique
-   a 0 para que el iframe tome el 100% del ancho y alto ya disponibles. Nada de
-   position:fixed acá: el track tiene transform, y eso lo convierte en el
-   "contenedor" de cualquier hijo fixed, corriendolo fuera de pantalla.
-   El texto no usa display:none (corta la animacion de golpe) — en cambio se
-   desvanece con opacity mientras la columna se achica, para verse como una
-   contraccion suave en vez de un salto. */
-.split-panel.is-maximized { grid-template-columns: 0px 1fr; }
+/* Estado maximizado: solo se oculta el texto, la app ya ocupaba todo el panel */
 .split-panel.is-maximized .panel-content { opacity: 0; pointer-events: none; }
 
 .expand-embed {
