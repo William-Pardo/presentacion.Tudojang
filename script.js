@@ -138,12 +138,22 @@
     const restoreFab = document.querySelector(".restore-fab");
     let maximizedPanel = null;
 
+    function resync() {
+      // El motor de scroll horizontal depende 100% de window.scrollY. Si el
+      // click/foco del boton dispara un auto-scroll nativo del navegador (para
+      // llevar el elemento enfocado a la vista), la posicion se desincroniza y
+      // el panel visible "salta". Sacamos el foco y forzamos un recalculo.
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      requestAnimationFrame(updateHorizontalScroll);
+    }
+
     function maximize(panel) {
       maximizedPanel?.classList.remove("is-maximized");
       maximizedPanel = panel;
       panel.classList.add("is-maximized");
       restoreFab?.classList.add("is-visible");
       document.body.classList.add("has-maximized");
+      resync();
     }
 
     function restore() {
@@ -151,6 +161,7 @@
       maximizedPanel = null;
       restoreFab?.classList.remove("is-visible");
       document.body.classList.remove("has-maximized");
+      resync();
     }
 
     document.querySelectorAll(".expand-embed").forEach((button) => {
