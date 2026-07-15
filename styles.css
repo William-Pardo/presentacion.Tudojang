@@ -215,11 +215,6 @@ a { color: inherit; text-decoration: none; }
   .split-panel .panel-content { grid-column: 1; grid-row: 1; background: rgba(5,6,9,0.55); border-right: none; }
 }
 
-/* "Ampliar" ahora usa la API nativa de Fullscreen del navegador en vez de CSS:
-   el navegador se encarga de mostrar SOLO .panel-media cubriendo toda la
-   pantalla, sin tocar el grid, sin containing-block raros, sin que el scroll
-   principal se vea afectado en el estado normal (el iframe nunca ocupa mas
-   que su columna hasta que se activa fullscreen). */
 .expand-embed {
   pointer-events: auto; cursor: pointer; flex-shrink: 0;
   font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em;
@@ -227,8 +222,21 @@ a { color: inherit; text-decoration: none; }
   border-radius: 999px; padding: 4px 10px; font-weight: 700;
 }
 .expand-embed:hover { background: rgba(255,255,255,0.24); }
-.panel-media.app-embed:fullscreen { background: #fff; }
-.panel-media.app-embed:fullscreen .app-embed-caption { pointer-events: auto; }
+
+/* "Ampliar" reparenta .panel-media a <body> y lo pone fixed a pantalla
+   completa (llena la VENTANA del navegador, no el monitor -- eso seria F11).
+   Al sacarlo del grid, el layout normal (y su scroll) nunca se ve afectado
+   en el estado por defecto. La animacion es tipo FLIP: se calcula la posicion
+   chica original, se aplica como transform inicial (instantaneo), y se anima
+   hacia transform:none -- eso evita cualquier problema de containing-block
+   con el transform del track. */
+.panel-media.is-fullframe {
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  width: 100vw; height: 100vh; background: #fff;
+}
+.split-panel .panel-content.is-hidden-for-expand {
+  opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+}
 
 .demo-badge {
   display: inline-block; font-family: var(--font-mono); font-size: 0.68rem;

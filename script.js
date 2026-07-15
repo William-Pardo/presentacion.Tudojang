@@ -135,29 +135,87 @@
   }
 
   function setupExpandToggle() {
-    // Usa la Fullscreen API nativa del navegador en vez de CSS: el layout
-    // normal (grid, scroll) nunca se toca, asi que nunca se rompe. El
-    // navegador se encarga de mostrar SOLO .panel-media a pantalla completa.
+    // "Ampliar" reparenta .panel-media a <body> (position:fixed, pantalla
+    // completa DENTRO de la ventana del navegador -- no es F11/fullscreen del
+    // SO). El layout normal (grid, scroll) nunca se toca en el estado por
+    // defecto, asi que nunca se rompe. Animacion tipo FLIP para que se vea
+    // como un estiramiento suave en vez de un salto.
+    let current = null; // { media, placeholder, button }
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const DURATION = reduceMotion ? 0 : 650;
+    const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+    function flipTo(media, rect) {
+      const scaleX = rect.width / window.innerWidth;
+      const scaleY = rect.height / window.innerHeight;
+      media.style.transition = "none";
+      media.style.transformOrigin = "top left";
+      media.style.transform = `translate(${rect.left}px, ${rect.top}px) scale(${scaleX}, ${scaleY})`;
+      void media.offsetWidth; // forzar reflow antes de animar
+      media.style.transition = `transform ${DURATION}ms ${EASING}`;
+      media.style.transform = "none";
+    }
+
+    function expand(media, button) {
+      if (current) return;
+      const rect = media.getBoundingClientRect();
+      const panel = media.closest(".split-panel");
+      const content = panel?.querySelector(".panel-content");
+
+      const placeholder = document.createElement("div");
+      placeholder.style.display = "none";
+      media.parentNode.insertBefore(placeholder, media);
+
+      document.body.appendChild(media);
+      media.classList.add("is-fullframe");
+      flipTo(media, rect);
+      content?.classList.add("is-hidden-for-expand");
+
+      current = { media, placeholder, button };
+      button.textContent = "⛶ Restaurar";
+    }
+
+    function restore() {
+      if (!current) return;
+      const { media, placeholder, button } = current;
+      const rect = placeholder.getBoundingClientRect();
+      const scaleX = rect.width / window.innerWidth;
+      const scaleY = rect.height / window.innerHeight;
+
+      media.style.transition = `transform ${DURATION}ms ${EASING}`;
+      media.style.transform = `translate(${rect.left}px, ${rect.top}px) scale(${scaleX}, ${scaleY})`;
+
+      const panel = placeholder.closest(".split-panel");
+      panel?.querySelector(".panel-content")?.classList.remove("is-hidden-for-expand");
+      button.textContent = "⛶ Ampliar";
+
+      const finish = () => {
+        media.classList.remove("is-fullframe");
+        media.style.transition = "";
+        media.style.transform = "";
+        media.style.transformOrigin = "";
+        placeholder.parentNode?.insertBefore(media, placeholder);
+        placeholder.remove();
+        current = null;
+      };
+
+      if (DURATION === 0) {
+        finish();
+      } else {
+        media.addEventListener("transitionend", finish, { once: true });
+      }
+    }
+
     document.querySelectorAll(".expand-embed").forEach((button) => {
-      const media = button.closest(".app-embed");
-      if (!media) return;
-
       button.addEventListener("click", () => {
-        if (document.fullscreenElement === media) {
-          document.exitFullscreen();
-        } else if (media.requestFullscreen) {
-          media.requestFullscreen();
-        }
+        const media = button.closest(".app-embed");
+        if (!media) return;
+        if (current && current.media === media) restore();
+        else if (!current) expand(media, button);
       });
     });
 
-    document.addEventListener("fullscreenchange", () => {
-      document.querySelectorAll(".expand-embed").forEach((button) => {
-        const media = button.closest(".app-embed");
-        const isFullscreen = document.fullscreenElement === media;
-        button.textContent = isFullscreen ? "⛶ Restaurar" : "⛶ Ampliar";
-      });
-    });
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape" && current) restore(); });
   }
 
   function respectReducedMotionVideos() {
