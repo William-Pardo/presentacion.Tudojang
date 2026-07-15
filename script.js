@@ -145,12 +145,20 @@
     const DURATION = reduceMotion ? 0 : 650;
     const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
-    function flipTo(media, rect) {
+    // Ancla la animacion en la esquina superior DERECHA (ahi vive la app en
+    // el layout) en vez de la izquierda -- con transform-origin:"top right",
+    // el desplazamiento horizontal se mide desde el borde derecho.
+    function transformFor(rect) {
       const scaleX = rect.width / window.innerWidth;
       const scaleY = rect.height / window.innerHeight;
+      const rightGap = window.innerWidth - (rect.left + rect.width);
+      return `translate(${-rightGap}px, ${rect.top}px) scale(${scaleX}, ${scaleY})`;
+    }
+
+    function flipTo(media, rect) {
       media.style.transition = "none";
-      media.style.transformOrigin = "top left";
-      media.style.transform = `translate(${rect.left}px, ${rect.top}px) scale(${scaleX}, ${scaleY})`;
+      media.style.transformOrigin = "top right";
+      media.style.transform = transformFor(rect);
       void media.offsetWidth; // forzar reflow antes de animar
       media.style.transition = `transform ${DURATION}ms ${EASING}`;
       media.style.transform = "none";
@@ -179,11 +187,9 @@
       if (!current) return;
       const { media, placeholder, button } = current;
       const rect = placeholder.getBoundingClientRect();
-      const scaleX = rect.width / window.innerWidth;
-      const scaleY = rect.height / window.innerHeight;
 
       media.style.transition = `transform ${DURATION}ms ${EASING}`;
-      media.style.transform = `translate(${rect.left}px, ${rect.top}px) scale(${scaleX}, ${scaleY})`;
+      media.style.transform = transformFor(rect);
 
       const panel = placeholder.closest(".split-panel");
       panel?.querySelector(".panel-content")?.classList.remove("is-hidden-for-expand");
