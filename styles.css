@@ -152,22 +152,25 @@ a { color: inherit; text-decoration: none; }
 .pill-note:hover { background: rgba(255,255,255,0.16); }
 .pill-note.is-active { box-shadow: inset 0 0 0 2px var(--gold); background: rgba(216,182,106,0.16); }
 
+/* Grande y centrado, pensado para que lo lea la audiencia -- se superpone a
+   la foto del panel a proposito. Solo existe mientras hay una pildora de
+   Proximos Pasos activa; cualquier scroll o click afuera lo cierra (ver JS). */
 .presenter-note {
-  position: fixed; left: 50%; bottom: calc(var(--bar-height) + 18px); z-index: 700;
-  transform: translateX(-50%) translateY(12px);
-  width: min(640px, 90vw); padding: 18px 44px 18px 20px;
-  background: rgba(9, 11, 16, 0.96); border: 1px solid rgba(216,182,106,0.4);
-  border-radius: 14px; box-shadow: 0 20px 50px -16px rgba(0,0,0,0.7);
+  position: fixed; top: 50%; left: 50%; z-index: 700;
+  transform: translate(-50%, -50%) scale(0.96);
+  width: min(760px, 88vw); padding: 34px 52px;
+  background: rgba(6, 8, 13, 0.94); border: 1px solid rgba(216,182,106,0.45);
+  border-radius: 20px; box-shadow: 0 30px 80px -20px rgba(0,0,0,0.8);
   opacity: 0; pointer-events: none;
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
-.presenter-note.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.presenter-note.is-visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
 .presenter-note-text {
-  margin: 0; color: var(--white); font-size: 0.95rem; line-height: 1.5;
+  margin: 0; color: var(--white); font-size: clamp(1.35rem, 2.6vw, 2rem); line-height: 1.5; font-weight: 600;
 }
 .presenter-note-close {
-  position: absolute; top: 10px; right: 12px; cursor: pointer;
-  background: none; border: none; color: var(--muted); font-size: 0.9rem; padding: 4px;
+  position: absolute; top: 14px; right: 16px; cursor: pointer;
+  background: none; border: none; color: var(--muted); font-size: 1.1rem; padding: 6px;
 }
 .presenter-note-close:hover { color: var(--white); }
 .pill-label:first-child { margin-top: 26px; }

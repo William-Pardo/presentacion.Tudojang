@@ -247,13 +247,19 @@
     }
 
     pills.forEach((pill) => {
-      pill.addEventListener("click", () => {
+      pill.addEventListener("click", (e) => {
+        e.stopPropagation(); // que no dispare el cierre por "click afuera" del mismo gesto
         if (activePill === pill) hide();
         else show(pill);
       });
     });
 
     closeBtn?.addEventListener("click", hide);
+
+    // Temporal y acotado al panel 11: cualquier click afuera de una pildora
+    // o del cuadro, o cualquier scroll (navegar a otro panel), lo cierra.
+    document.addEventListener("click", () => { if (activePill) hide(); });
+    window.addEventListener("scroll", () => { if (activePill) hide(); }, { passive: true });
   }
 
   function respectReducedMotionVideos() {
