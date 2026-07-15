@@ -215,7 +215,7 @@
           <p class="panel-kicker animate-fade-up">11 — Próximos pasos</p>
           <h2 class="panel-title animate-fade-up delay-1" style="font-size:clamp(2rem,4vw,3.4rem)">¿Qué deben hacer ahora?</h2>
           <div class="pill-row animate-fade-up delay-2">
-            <span>1 · Esperar</span><span>2 · Validar</span><span>3 · Aprender</span><span>4 · Confiar</span>
+            <span class="pill-note" data-note="El club les va a enviar instrucciones de cómo acceder. Recibirán un correo con todo lo que necesitan.">1 · Esperar</span><span class="pill-note" data-note="Cuando entren por primera vez, van a validar que sus datos estén correctos. Nombre del estudiante, contacto, información importante.">2 · Validar</span><span class="pill-note" data-note="La app es intuitiva. Está hecha para padres, no para informáticos. Pero si tienen una pregunta, el club tendrá guías y soporte.">3 · Aprender</span><span class="pill-note" data-note="No es obligatorio memorizar todo en un día. Familiarícense poco a poco.">4 · Confiar</span>
           </div>
         </div>
       </article>
@@ -236,6 +236,11 @@
   </div>
 </section>
 </main>
+
+<div class="presenter-note" id="presenter-note">
+  <button class="presenter-note-close" type="button" aria-label="Cerrar nota">✕</button>
+  <p class="presenter-note-text"></p>
+</div>
 
 <script src="script.js"></script>
 </body>

@@ -224,6 +224,38 @@
     window.addEventListener("keydown", (e) => { if (e.key === "Escape" && current) restore(); });
   }
 
+  function setupPresenterNotes() {
+    const notePanel = document.querySelector(".presenter-note");
+    const noteText = notePanel?.querySelector(".presenter-note-text");
+    const closeBtn = notePanel?.querySelector(".presenter-note-close");
+    const pills = Array.from(document.querySelectorAll(".pill-note"));
+    let activePill = null;
+
+    function show(pill) {
+      if (!notePanel || !noteText) return;
+      activePill?.classList.remove("is-active");
+      activePill = pill;
+      pill.classList.add("is-active");
+      noteText.textContent = pill.dataset.note || "";
+      notePanel.classList.add("is-visible");
+    }
+
+    function hide() {
+      activePill?.classList.remove("is-active");
+      activePill = null;
+      notePanel?.classList.remove("is-visible");
+    }
+
+    pills.forEach((pill) => {
+      pill.addEventListener("click", () => {
+        if (activePill === pill) hide();
+        else show(pill);
+      });
+    });
+
+    closeBtn?.addEventListener("click", hide);
+  }
+
   function respectReducedMotionVideos() {
     if (!reducedMotion) return;
     document.querySelectorAll(".panel-media video").forEach((video) => {
@@ -238,6 +270,7 @@
     respectReducedMotionVideos();
     setupNav();
     setupExpandToggle();
+    setupPresenterNotes();
     window.addEventListener("resize", setupHorizontalScroll);
     window.addEventListener("orientationchange", setupHorizontalScroll);
     window.addEventListener("scroll", updateHorizontalScroll, { passive: true });
